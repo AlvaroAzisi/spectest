@@ -1,0 +1,35 @@
+openapi: 3.0.0
+info:
+  title: Kupintar Badges API
+  version: 0.1.0
+paths:
+  /badges:
+    get:
+      summary: List all badges
+      responses:
+        '200':
+          description: List of badges
+  /badges/award:
+    post:
+      summary: Award a badge to a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AwardBadge'
+      responses:
+        '201':
+          description: Badge awarded
+components:
+  schemas:
+    AwardBadge:
+      type: object
+      required:
+        - user_id
+        - badge_id
+      properties:
+        user_id:
+          type: string
+        badge_id:
+          type: string

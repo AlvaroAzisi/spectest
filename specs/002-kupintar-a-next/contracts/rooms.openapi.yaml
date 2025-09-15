@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Kupintar Study Rooms API
+  version: 0.1.0
+paths:
+  /rooms:
+    get:
+      summary: List all study rooms
+      responses:
+        '200':
+          description: A list of rooms
+    post:
+      summary: Create a new study room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomCreate'
+      responses:
+        '201':
+          description: Room created
+  /rooms/{id}:
+    get:
+      summary: Get room details
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Room details
+    patch:
+      summary: Update room details (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomUpdate'
+      responses:
+        '200':
+          description: Room updated
+    delete:
+      summary: Delete a room (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Room deleted
+components:
+  schemas:
+    RoomCreate:
+      type: object
+      required:
+        - title
+        - access_type
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        access_type:
+          type: string
+          enum: [public, private]
+    RoomUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        access_type:
+          type: string
+          enum: [public, private]

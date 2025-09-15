@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: Kupintar Friends API
+  version: 0.1.0
+paths:
+  /friends:
+    get:
+      summary: List friends
+      responses:
+        '200':
+          description: List of friends
+    post:
+      summary: Send a friend request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendRequest'
+      responses:
+        '201':
+          description: Friend request sent
+  /friends/{id}/accept:
+    post:
+      summary: Accept a friend request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Friend request accepted
+  /friends/{id}/decline:
+    post:
+      summary: Decline a friend request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Friend request declined
+components:
+  schemas:
+    FriendRequest:
+      type: object
+      required:
+        - friend_id
+      properties:
+        friend_id:
+          type: string

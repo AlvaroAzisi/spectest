@@ -1,0 +1,11 @@
+openapi: 3.0.0
+info:
+  title: Kupintar Analytics API
+  version: 0.1.0
+paths:
+  /analytics/dashboard:
+    get:
+      summary: Get analytics dashboard for current user
+      responses:
+        '200':
+          description: Analytics dashboard data

@@ -1,0 +1,38 @@
+openapi: 3.0.0
+info:
+  title: Kupintar Subscriptions API
+  version: 0.1.0
+paths:
+  /subscriptions:
+    get:
+      summary: Get current user's subscription
+      responses:
+        '200':
+          description: Subscription details
+    post:
+      summary: Create a new subscription (Pro upgrade)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionCreate'
+      responses:
+        '201':
+          description: Subscription created
+  /subscriptions/cancel:
+    post:
+      summary: Cancel current subscription
+      responses:
+        '200':
+          description: Subscription cancelled
+components:
+  schemas:
+    SubscriptionCreate:
+      type: object
+      required:
+        - provider
+      properties:
+        provider:
+          type: string
+          enum: [paddle, lemonsqueezy, midtrans, xendit, stripe]

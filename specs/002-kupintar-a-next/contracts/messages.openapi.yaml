@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: Kupintar Messages API
+  version: 0.1.0
+paths:
+  /rooms/{room_id}/messages:
+    get:
+      summary: List messages in a room
+      parameters:
+        - in: path
+          name: room_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of messages
+    post:
+      summary: Send a message to a room
+      parameters:
+        - in: path
+          name: room_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '201':
+          description: Message sent
+  /messages/{id}:
+    delete:
+      summary: Delete a message (soft delete)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Message deleted
+components:
+  schemas:
+    MessageCreate:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
