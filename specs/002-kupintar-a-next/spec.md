@@ -38,11 +38,16 @@ Ambitious students join Kupintar to find or create study rooms, collaborate in r
 3. **Given** a user with a streak, **When** they log in daily, **Then** their streak and XP are updated and visible on their dashboard.
 4. **Given** a user with a Pro subscription, **When** they access advanced analytics, **Then** they see detailed study statistics and exclusive features.
 
+5. **Given** a free user, **When** they attempt to access Pro-only features, **Then** they are prompted to upgrade and access is denied.
+6. **Given** a user, **When** they upgrade to Pro, **Then** their subscription is activated and Pro features are unlocked.
+7. **Given** a Pro user, **When** their subscription expires, **Then** access to Pro features is revoked and they are notified.
+8. **Given** a Pro user, **When** they downgrade to free, **Then** Pro features become inaccessible and their status is updated.
+
 ### Edge Cases
 - What happens when a user tries to join a private room without an invite?  
 - How does the system handle a user exceeding the free DM limit?  
 - What if a user attempts to upload an unsupported avatar file type?  
-- How are streaks handled if a user misses a day due to technical issues? [NEEDS CLARIFICATION: Is there a grace period or appeal process?]
+- How are streaks handled if a user misses a day due to technical issues? If the user has a “Freeze Streak” token (earned via daily login rewards), their streak is protected for one missed day. Users can stack up to 2 tokens. If no token is available, the streak resets to zero.
 
 ## Requirements *(mandatory)*
 
@@ -57,23 +62,51 @@ Ambitious students join Kupintar to find or create study rooms, collaborate in r
 - **FR-008**: System MUST support room discovery and friend discovery features.
 - **FR-009**: System MUST award badges for specific milestones and contributions.
 - **FR-010**: System MUST restrict access to private rooms and admin-only settings.
-- **FR-011**: System MUST allow Pro users to access advanced analytics and exclusive features.
-- **FR-012**: System MUST provide a mechanism for users to subscribe to Pro tier. [NEEDS CLARIFICATION: What payment methods are supported?]
-- **FR-013**: System MUST handle user authentication. [NEEDS CLARIFICATION: Auth methods not fully specified—email/password, Google, others?]
-- **FR-014**: System MUST handle file uploads for avatars. [NEEDS CLARIFICATION: File size/type limits?]
-- **FR-015**: System MUST provide error messages for unsupported actions (e.g., exceeding DM limit, invalid invite code).
-- **FR-016**: System MUST log user activity for analytics and gamification.
-- **FR-017**: System MUST allow users to leave or delete rooms they created.
-- **FR-018**: System MUST support future enhancements (voice/video, whiteboard, scheduling, auto-matching). [NEEDS CLARIFICATION: Prioritization and timeline for these features?]
+**FR-011**: System MUST allow Pro users to access advanced analytics and exclusive features.
+**FR-012**: System MUST provide Pro subscription via Paddle/LemonSqueezy (default), with future support for Midtrans/Xendit (IDR) and Stripe (global).
+**FR-013**: System MUST support email/password (with verification) and Google sign-in, extensible to future providers (Apple, GitHub, etc).
+**FR-014**: System MUST allow jpg/png/webp up to 2MB, resize to 256x256, stored in Supabase public bucket with RLS owner-only access.
+**FR-015**: System MUST allow users to leave or delete rooms they created.
+## Roadmap & Future Enhancements
+
+- Q4 2025: Join via code, DM & Group Chat, Badge System
+- H1 2026: Whiteboard, Scheduling, Friend Auto-Matching
+- 2026+: Video/Audio Calls (Pro)
 
 ### Key Entities *(include if feature involves data)*
-- **User Profile**: Represents a user, including name, email, avatar, XP, streaks, badges, and subscription status.
-- **Study Room**: Represents a collaborative space with title, description, tags, creator, access type (public/private), and members.
-- **Room Member**: Links users to rooms, tracks roles (admin/member), and permissions.
-- **Message**: Represents chat messages in rooms or DMs, with sender, timestamp, and content.
-- **Friend**: Represents a social connection between users, including status (pending, accepted).
-- **Badge/Achievement**: Represents earned recognition for milestones or contributions.
-- **Subscription**: Represents user’s Pro tier status, payment info, and access rights.
+
++
+**users**: All registered accounts (unique id, email, etc)
+**profiles**: User profile info (name, avatar, XP, streaks, badges, subscription)
+**rooms**: Study rooms (title, description, tags, creator, access type, members)
+**room_members**: Links users to rooms, tracks roles and permissions
+**messages**: Chat messages in rooms or DMs (sender, timestamp, content)
+**friends**: Social connections (status: pending, accepted)
+**subscriptions**: Pro tier status, payment info, access rights
+## Data Retention & Privacy
+- **Messages**: Retained for 1 year, then archived or purged.
+- **Room data**: Persist until deleted by admin.
+- **User activity logs**: Retained for 6 months, then anonymized for analytics.
+- **User controls**: Users can delete their own messages, leave rooms, and request account deletion (removes profile, anonymizes data).
+
+## Error Handling & User Feedback
+System provides clear, contextual error messages for common scenarios:
+- Joining private/full room
+- Unsupported/corrupt avatar upload
+- Exceeding DM limits
+- Invalid invite code
+Messages explain what went wrong and how to fix it.
+
+## Performance & Scale
+- **Chat latency**: Target <200ms average message delivery
+- **Room size**: 30 (Free) / 100 (Pro) for MVP; scale to 200+ after 10k users
+- **Scalability**: Supabase real-time backend, scalable/shardable as needed
+
+## Security & Compliance
+- **Privacy compliance**: GDPR-like (right to be forgotten, data export)
+- **Age**: Platform for 13+ (SMP and above); if <13, parental consent required
+- **Security**: SSL/TLS enforced, passwords hashed (bcrypt or equivalent), RLS for all Supabase tables
+- **Abuse prevention**: Rate-limiting and abuse prevention for chat/friend requests
 
 ---
 
@@ -87,7 +120,7 @@ Ambitious students join Kupintar to find or create study rooms, collaborate in r
 - [x] All mandatory sections completed
 
 ### Requirement Completeness
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous  
 - [x] Success criteria are measurable
 - [x] Scope is clearly bounded
@@ -96,7 +129,18 @@ Ambitious students join Kupintar to find or create study rooms, collaborate in r
 ---
 
 ## Execution Status
-*Updated by main() during processing*
+
+---
+
+## Preferred Technologies & Practices *(for implementation guidance only)*
+
+> The following are preferred technologies and practices to guide implementation, but are not part of the formal specification.
+
+- **Backend & Storage**: Supabase (auth, database, real-time, storage with RLS)
+- **Payment Gateways**: Paddle/LemonSqueezy (default, global), Midtrans/Xendit (IDR, regional), Stripe (global, future)
+- **Auth Providers**: Email/password (with verification), Google sign-in. Expandable to Apple/GitHub later
+- **File Handling**: Avatars supported in jpg/png/webp, max 5MB, resized to 256×256 before storage
+- **Security Practices**: bcrypt (or equivalent) for password hashing, SSL/TLS everywhere, rate limiting for abuse prevention
 
 - [x] User description parsed
 - [x] Key concepts extracted
